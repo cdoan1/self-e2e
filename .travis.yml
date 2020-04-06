@@ -17,9 +17,6 @@ env:
 
 install:
    - pip install untangle
-   - git clone --single-branch --branch master https://github.com/open-cluster-management/canary-env.git
-   - git clone --single-branch --branch master https://github.com/open-cluster-management/deploy.git
-   - curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-${OC_CLI_VERS}/openshift-client-linux.tar.gz | tar -zx -C ~/bin
 
 before_script:
 
