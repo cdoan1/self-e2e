@@ -1,0 +1,65 @@
+os:
+  - linux
+
+language: python
+python:
+  - "3.7"
+
+services:
+  - docker
+
+env:
+  global:
+    - OS=linux
+    - TEST_REPO=open-cluster-management-e2e
+    - OC_CLI_VERS=4.3
+    - CLUSTER_NAME=$(cat CLUSTER_NAME)
+
+install:
+   - pip install untangle
+   - git clone --single-branch --branch master https://github.com/open-cluster-management/canary-env.git
+   - git clone --single-branch --branch master https://github.com/open-cluster-management/deploy.git
+   - curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-${OC_CLI_VERS}/openshift-client-linux.tar.gz | tar -zx -C ~/bin
+
+before_script:
+
+stages:
+- clean
+- deploy
+- test
+
+jobs:
+  include:
+          - stage: clean
+            name: "Clean out previous deployment"
+            script:
+                    - echo "hello"
+          - stage: deploy
+            name: "Deploy OCM"
+            script:
+                    - echo "there"
+          - stage: test
+            name: "Configure Env & Run Tests"
+            script:
+                    - echo "yes"
+                    - |
+                      cat > ./options.yaml << EOL
+                      options:
+                        hub:
+                          name: ${HUB_CLUSTER_NAME}
+                          baseDomain: ${BASE_DOMAIN}
+                          user: kubeadmin
+                          password: ${HUB_PASSWORD}
+                          kubecontext: "${HUB_KUBECONTEXT}"
+                        clusters:
+                        - name: ${IMPORT_CLUSTER_NAME}
+                          tags:
+                            manual-import: true
+                          baseDomain: ${BASE_DOMAIN}
+                          kubecontext: ${IMPORT_KUBECONTEXT}
+                          masterURL: ${IMPORT_API_URL}
+                        imageRegistry:
+                          server: quay.io/open-cluster-management
+                          user: ${DOCKER_USER}
+                          password: ${DOCKER_PASS}
+                      EOL
